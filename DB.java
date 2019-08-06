@@ -321,6 +321,21 @@ public class DB {
 		}
 		return high;
 	}
-	
+	/**
+	 * Does matrix subtaction of probilities in order to find true bayesian correlation
+	 * @param A data set
+	 * @param B control set
+	 * @return A - B
+	 */
+	public static double[][] matrixSetSubtraction(double[][] A, double[][] B){
+		double[][] C = new double[A.length][A[0].length];
+		for(int i = 0; i < A.length; i++) {
+			for(int j = 0; j < A[0].length; j++) {
+				C[i][j] = A[i][j] - B[i][j];
+				
+			}
+		}
+		return C;
+	}
 	
 }
