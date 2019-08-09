@@ -4,7 +4,7 @@ public class Taylor {
 	
 	public static int factioal(int par1) {
 		int ans = 1;
-		for(int i =0; i<par1; i++) {
+		for(int i =1; i<par1; i++) {
 			ans *=i;
 		}
 		
