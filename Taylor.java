@@ -57,4 +57,51 @@ public class Taylor {
 		
 		return generateFromPoints(par3, par2, i);
 	}
+	
+	/**
+	 * gets the distance squared for the line
+	 * @param par1 data set1
+	 * @param par2 data set2
+	 * @return the distance squared
+	 */
+	public static double DistanceSquared(double[] par1, double[] par2) {
+		double d = 0;
+		for(int i =0; i < par1.length; i++) {
+			d += Math.pow(par1[i] - par2[i], 2);
+		}
+		
+		return d;
+	}
+	
+	
+	/**
+	 * gets the distance squared for each point
+	 * @param par1 data set1
+	 * @param par2 data set2
+	 * @return the distance squared
+	 */
+	public static double[] DistanceSquaredPoints(double[] par1, double[] par2) {
+		double[] d = new double[par1.length];
+		for(int i =0; i < par1.length; i++) {
+			d[i]= Math.pow(par1[i] - par2[i], 2);
+		}
+		
+		return d;
+	}
+	/**
+	 * Generates Points from Taylor Series
+	 * @param t Taylor Series
+	 * @param par1 the orginal data
+	 * @return points
+	 */
+	public static double[] dataSetFromTaylorSeries(TaylorSeries t) {
+		double[] d = new double[t.getCoeff().length];
+		
+		for(int i = 0; i < t.getCoeff().length; i++) {
+			d[i] = t.evaluteAt(i, (t.getCoeff().length-1) / 2.0);
+		}
+		
+		return d;
+	}
+	
 }
