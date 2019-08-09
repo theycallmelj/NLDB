@@ -41,7 +41,7 @@ public class DB {
 	 * 
 	 * @return the matrix new matrix
 	 */
-	public static double[][][] nthCorrelationMatrix(double[][] par1,double[][] par2){
+	public static double[][][] nthVaribleCorrelationMatrix(double[][] par1,double[][] par2){
 		
 		double[][][]matrix = new double[par1.length][4][4];
 		
@@ -56,36 +56,51 @@ public class DB {
 		}
 		
 		return matrix;
+	
+	}
+/**
+ * Creates a single matrix for correlation between matrices
+ * @param par1
+ * @return
+ */
+public static double[][] nthCorrelationMatrix(double[][] par1){
 		
-		/**
-
+	
 		
-		double[][]intersect = new double[4][4];
-		for(int k = 0; k < par1.size(); k++) {
+		double[][]matrix = new double[4][4];
+		
+		double[][] order = new double[par1.length][par1[0].length];
+		double[][] data = new double[par1.length][par1[0].length];
+		for(int i = 0; i < par1.length; i++) {
+			order[i] = order(par1[i]);
+			data[i] = data(order[i]);
 			
-			for(int i =0; i < 4; i++) {
-				for(int j =0; j < 4; j++) {
-					
-					double[] orderX = order(par2.get(k));
-					double[] orderY = order(par1.get(k));
-					
-					double [] dataX = data(orderX);
-					double[] dataY = data(orderY);
-					
-					intersect[i][j] = IntersectCount(par1.get(k), par2.get(k), new double[]{dataY[i], dataY[i+1]}, new double[]{dataX[j], dataX[j+1]});
-					
-					
-					}
-			}
-			matrix.add(intersect);
 		}
 		
 		
+			for(int i =0; i < 4; i++) {
+				for(int j =0; j < 4; j++) {
+					
+					double[][] bounds = new double[par1.length][data[0].length]; 
+					for(int x= 0; x<  par1.length; x++) {
+						//for(int y= 0; y<  par1.length; y++) {
+							bounds[x][i] = data[x][i];
+							bounds[x][j] =data[x][i+1];
+							
+						//}
+					}
+					
+					
+					
+					matrix[i][j] = IntersectCountMutliD(par1, bounds);
+					}
+			
+		}
+		
+		
+		
 		return matrix;
-		**/
-	}
-	
-	
+}
 	
 	
 	
@@ -98,7 +113,7 @@ public class DB {
 	public static int IntersectCount(double[] par1, double[] par2, double[] boundsPar1, double[] boundsPar2) {
 		HashMap<Integer, Double> par1Map = timesInBoundsWithIndex(par1, boundsPar1);
 		HashMap<Integer, Double> par2Map = timesInBoundsWithIndex(par2, boundsPar2);
-		int count  =0 ;
+		int count  = 0;
 		for(int i = 0; i < par1Map.size(); i++) {
 			if(par2Map.containsKey(par1Map.keySet().toArray()[i])) {
 				count++;
@@ -108,7 +123,71 @@ public class DB {
 		return count;
 	}
 	
+	/**
+	 * For two martices
+	 * @param par1
+	 * @param par2
+	 * @param boundsPar1
+	 * @param boundsPar2
+	 * @return
+	 */
+	public static int IntersectCountMutliD(double[][] par1, double[][] bounds) {
+		
+		int count  = 0;
+		ArrayList<HashMap<Integer, Double>> par1Map = timesInBoundsWithIndexMutliD(par1, bounds);
+		
+		
+		for(int i = 0; i < par1Map.size(); i++) {
+			for(int j = i+1; j < par1Map.size() - 1; j++) {
+				//System.out.println(i);
+				for(int k = 0; k < par1Map.get(j).keySet().toArray().length; k++) {
+					if(par1Map.get(i).containsKey(par1Map.get(j).keySet().toArray()[k])) {
+						System.out.println(count);
+						count++;
+					}
+				}
+			}
+			
+		}
+		
+		return count;
+	}
+	/**
+	 * For two martices
+	 * @param par1
+	 * @param bounds
+	 * @return
+	 */
 	
+	public static ArrayList<HashMap<Integer, Double>> timesInBoundsWithIndexMutliD(double[][] par1,double[][] bounds) {
+		ArrayList<HashMap<Integer, Double>> out = new ArrayList<HashMap<Integer, Double>>();
+		
+		HashMap<Integer, Double> indexToVal = new HashMap<Integer, Double>();
+		
+		for(int i = 0; i < par1.length; i++) {
+			for(int j = 0; j < par1[i].length; j++) {
+				
+				boolean p1 = par1[i][j] >= bounds[i][0];
+				
+				if(p1 && par1[i][j] <= bounds[i][1]) {
+					
+					indexToVal.put(i, par1[i][j]);
+				}
+			}
+			out.add(indexToVal);// makes sure values are correctly copied
+			indexToVal.clear();
+		}
+		
+		return out;
+	}	
+	
+	
+	/**
+	 * For two vectors
+	 * @param par1
+	 * @param bounds
+	 * @return
+	 */
 	public static HashMap<Integer, Double> timesInBoundsWithIndex(double[] par1,double[] bounds) {
 		
 		HashMap<Integer, Double> indexToVal = new HashMap<Integer, Double>();
@@ -321,6 +400,35 @@ public class DB {
 		}
 		return high;
 	}
+	
+	public static double[][] multiplicar(double[][] A, double[][] B) {
+
+        int aRows = A.length;
+        int aColumns = A[0].length;
+        int bRows = B.length;
+        int bColumns = B[0].length;
+
+        if (aColumns != bRows) {
+            throw new IllegalArgumentException("A:Rows: " + aColumns + " did not match B:Columns " + bRows + ".");
+        }
+
+        double[][] C = new double[aRows][bColumns];
+        for (int i = 0; i < aRows; i++) {
+            for (int j = 0; j < bColumns; j++) {
+                C[i][j] = 0.00000;
+            }
+        }
+
+        for (int i = 0; i < aRows; i++) { // aRow
+            for (int j = 0; j < bColumns; j++) { // bColumn
+                for (int k = 0; k < aColumns; k++) { // aColumn
+                    C[i][j] += A[i][k] * B[k][j];
+                }
+            }
+        }
+
+        return C;
+    }
 	/**
 	 * Does matrix subtaction of probilities in order to find true bayesian correlation
 	 * @param A data set
@@ -336,6 +444,86 @@ public class DB {
 			}
 		}
 		return C;
+	}
+	
+	/**
+	 * Gets the trace of a matrix
+	 * @param par1
+	 * @return
+	 */
+	public static double trace(double[][] par1) {
+		double tr = 0;
+		for(int i = 0; i < par1.length; i++) {
+			tr += par1[i][i];
+		}
+		return tr;
+		
+	}
+	/**
+	 * gets correlation based on trace
+	 * @param par1 matrix
+	 * @return correlation
+	 */
+	public static double traceCorrelation(double[][] par1) {
+		
+		double sum =0.0;
+		for(int i = 0; i < par1.length; i++) {
+			for(int j = 0; j< par1[j].length; j++) {
+				sum+= par1[i][j];
+			}
+		}
+		
+		return trace(par1)/sum;
+		
+	}
+	
+	/**
+	 * get the bayesian correlation for each quartile
+	 * @param par1 the matrix
+	 * @return 
+	 */
+	public static double[] BayesianCorrelationQuartiles(double[][] par1) {
+		double[] ans = new double[par1.length];
+		
+		for(int i =0; i < par1.length; i++) {
+			double diag = par1[i][i];
+			double pb = 0;
+			for(int j = 0; j < i+1; j++) {
+				pb += par1[j][i];
+			}
+			
+			ans[i] = diag / pb;
+		}
+		
+		
+		return ans;
+		
+		
+	}
+	
+	/**
+	 *  gets the bayesian correlation for the line
+	 * @param par1 the matrix
+	 * @return
+	 */
+	
+	public static double BayesianCorrelationLine(double[][] par1) {
+		double bottom = 0;
+		
+		for(int i =0; i < par1.length; i++) {
+			
+			double pb = 0;
+			for(int j = 0; j < i+1; j++) {
+				bottom += par1[j][i];
+			}
+			
+			
+		}
+		
+		
+		return trace(par1) / bottom;
+		
+		
 	}
 	
 }
